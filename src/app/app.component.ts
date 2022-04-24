@@ -1,4 +1,4 @@
-import { Component, VERSION } from '@angular/core';
+import { Component, OnInit, VERSION } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
@@ -6,7 +6,7 @@ import { FormBuilder, Validators } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrls: [ './app.component.css' ]
 })
-export class AppComponent  {
+export class AppComponent implements OnInit  {
   
   form = this.fb.group({
     courseType: ['premium', Validators.required],
@@ -16,5 +16,26 @@ export class AppComponent  {
   });
 
    constructor(private fb: FormBuilder) { }
+
+   ngOnInit() {
+    
+    // the form emits an observable each time there is a new value (valid or invalid)
+    this.form.valueChanges
+    .subscribe(val => {
+
+      const priceControl = this.form.controls['price'];
+
+      // if 'courseType' value is 'free' & priceControl is enabled =>  disable priceControl
+      if (val.courseType == 'free' && priceControl.enabled) {
+        // disable priceControl input and make sure that no event is triggered => avoiding infinite loops
+        priceControl.disable({emitEvent: false});
+      }
+      else if (val.courseType == 'premium' && priceControl.disabled) {
+        priceControl.enable({emitEvent: false})
+      }
+
+
+    });
+   }
 
 }
